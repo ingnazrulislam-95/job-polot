@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JobPilot – AI job search assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#14213d;--mut:#5b6784;--line:#d9e0ec;--acc:#2f5bea;--acc2:#e8eeff;--ok:#12805c;--warn:#b45309;--bad:#b42318;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--card:#172038;--ink:#e8ecf7;--mut:#9aa6c6;--line:#2a3555;--acc:#7b9bff;--acc2:#222d52;--ok:#4fd1a1;--warn:#f0b35a;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0e1424;--card:#172038;--ink:#e8ecf7;--mut:#9aa6c6;--line:#2a3555;--acc:#7b9bff;--acc2:#222d52;--ok:#4fd1a1;--warn:#f0b35a;--bad:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 Manrope,system-ui,sans-serif}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav{background:var(--card);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+.logo{font-weight:800;font-size:20px;padding:0 10px 16px}
+nav button{all:unset;cursor:pointer;padding:9px 12px;border-radius:8px;color:var(--mut);font-weight:600}
+nav button:hover{background:var(--acc2)}
+nav button[aria-current=true]{background:var(--acc2);color:var(--acc)}
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.li{margin-top:auto;font-size:13px;color:var(--mut)}
+main{padding:24px;max-width:1100px;width:100%}
+h1{font-size:24px;margin:0 0 4px;font-weight:800}
+h2{font-size:17px;margin:0 0 10px}
+.sub{color:var(--mut);margin:0 0 18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-weight:800}
+.stat span{color:var(--mut);font-size:13px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{width:100%;min-height:90px}
+.btn{font:inherit;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 12px}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.p{color:#0e1424}}
+.job{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.job:first-child{border-top:0}
+.score{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;border:3px solid var(--acc);color:var(--acc)}
+.meta{color:var(--mut);font-size:13px}
+.tag{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:6px;padding:1px 7px;font-size:12px;margin:2px 4px 0 0;font-weight:600}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row{display:grid;grid-template-columns:1fr 150px 150px;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.scroll{overflow-x:auto}
+.empty{color:var(--mut);padding:18px 0}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);max-width:640px;width:92%;padding:20px}
+dialog::backdrop{background:rgba(10,15,30,.55)}
+.note{background:var(--acc2);border-radius:8px;padding:10px 12px;font-size:13px;margin:10px 0}
+.toast{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:8px;display:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-weight:600;font-size:13px;margin:8px 0 3px}
+.hero{background:linear-gradient(135deg,#4169e1,#2b4bc4);color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 6px 18px rgba(65,105,225,.28)}
+.hero h1{margin:0}.hero .sub{color:#e3e9ff;margin:4px 0 0}
+.pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:4px 14px;font-weight:600;font-size:13px}
+.prof .panel{border-top:3px solid #4169e1;border-radius:12px}
+.prof h2{color:#4169e1}
+.prof .btn.p{background:#4169e1;border-color:#4169e1;color:#fff!important}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .prof h2{color:#8fa8ff}}
+@media(max-width:760px){.app{grid-template-columns:1fr}nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}.logo,.li{display:none}.job{grid-template-columns:48px 1fr}.acts{grid-column:1/-1;justify-content:flex-start}.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav aria-label="Main">
+  <div class="logo">JobPilot</div>
+  <button data-v="matches" aria-current="true">Matches</button>
+  <button data-v="tracker">Applications</button>
+  <button data-v="alerts">Job alerts</button>
+  <button data-v="profile">Profile &amp; CV</button>
+  <div class="li">Prototype: runs in your browser with sample vacancies.</div>
+</nav>
+<main id="main"></main>
+</div>
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const JOBS=[
+{id:1,t:"Finance Reporting Analyst",c:"Northbridge Pharma",loc:"Prague",rem:"hybrid",lvl:"mid",sal:1400,sk:["excel","sap","reporting","ifrs","power bi"],d:"Monthly close, management reporting and variance analysis."},
+{id:2,t:"Automation Engineer (Finance)",c:"Brightline Shared Services",loc:"Brno",rem:"remote",lvl:"mid",sal:1900,sk:["python","sql","automation","power bi","excel"],d:"Automate reconciliations and reporting using Python and SQL."},
+{id:3,t:"QA Automation Engineer",c:"Vltava Software",loc:"Prague",rem:"hybrid",lvl:"mid",sal:2300,sk:["selenium","playwright","javascript","ci/cd","testing"],d:"Own the end-to-end test framework for a web product."},
+{id:4,t:"Junior Data Analyst",c:"Kafka Analytics",loc:"Prague",rem:"onsite",lvl:"junior",sal:1200,sk:["sql","excel","python","tableau"],d:"Build dashboards and ad-hoc analyses for product teams."},
+{id:5,t:"AI Test Automation Specialist",c:"Moldau Labs",loc:"Remote (EU)",rem:"remote",lvl:"senior",sal:3200,sk:["python","playwright","llm","testing","ci/cd"],d:"Design AI-assisted test generation and self-healing suites."},
+{id:6,t:"Senior Accountant",c:"Hradčany Group",loc:"Prague",rem:"onsite",lvl:"senior",sal:2100,sk:["ifrs","sap","excel","consolidation","reporting"],d:"Group consolidation and statutory reporting."},
+{id:7,t:"Web Developer",c:"Qseeing Studio",loc:"Remote (EU)",rem:"remote",lvl:"mid",sal:2400,sk:["javascript","html","css","node","sql"],d:"Build internal tools and dashboards for quality-control teams."},
+{id:8,t:"Business Intelligence Developer",c:"Danube Retail",loc:"Vienna",rem:"hybrid",lvl:"mid",sal:2800,sk:["power bi","sql","python","excel","etl"],d:"Own the reporting layer for regional finance and sales."}
+];
+const STAT=["Saved","Preparing","Submitted (confirmed)","Interview","Rejected","Offer"];
+const KEY="jobpilot.v1";
+let S={cv:"",prefs:{loc:"Prague",remote:"any",level:"any",minSal:0},saved:[],apps:{},alerts:{titles:"Automation, Reporting",companies:"",freq:"weekly",on:false},seen:{}};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let view="matches",f={q:"",min:0};
+
+function score(j){
+  const cv=S.cv.toLowerCase();
+  let s=0;
+  if(cv){const hit=j.sk.filter(k=>cv.includes(k)).length;s+=Math.round(60*hit/j.sk.length)}else s+=20;
+  const p=S.prefs;
+  if(p.loc&&(j.loc.toLowerCase().includes(p.loc.toLowerCase())||j.rem==="remote"))s+=15;
+  if(p.remote==="any"||p.remote===j.rem)s+=10;
+  if(p.level==="any"||p.level===j.lvl)s+=10;
+  if(!p.minSal||j.sal>=p.minSal)s+=5;
+  return Math.min(100,s);
+}
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",2600)}
+function setApp(id,st){S.apps[id]=Object.assign({status:"Saved",follow:"",note:""},S.apps[id],st);save()}
+
+function render(){
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===view));
+  $("#main").innerHTML=({matches:vMatches,tracker:vTracker,alerts:vAlerts,profile:vProfile})[view]();
+  bind();
+}
+function vMatches(){
+  const list=JOBS.map(j=>({...j,m:score(j)})).filter(j=>j.m>=f.min&&(j.t+j.c+j.sk.join(" ")).toLowerCase().includes(f.q.toLowerCase())).sort((a,b)=>b.m-a.m);
+  const n=Object.keys(S.apps).length,sub=Object.values(S.apps).filter(a=>a.status==="Submitted (confirmed)").length,fu=Object.values(S.apps).filter(a=>a.follow).length;
+  return `<h1>Recommended vacancies</h1><p class="sub">${S.cv?"Scored against your CV and preferences.":"Add your CV under Profile &amp; CV to get real match scores."}</p>
+  <div class="stats"><div class="stat"><b>${list.length}</b><span>Matching jobs</span></div><div class="stat"><b>${S.saved.length}</b><span>Saved</span></div><div class="stat"><b>${n}</b><span>Tracked applications</span></div><div class="stat"><b>${sub}</b><span>Confirmed submitted</span></div><div class="stat"><b>${fu}</b><span>Follow-ups set</span></div></div>
+  <div class="panel"><div class="bar"><input id="q" type="search" placeholder="Search title, company, skill" value="${esc(f.q)}" aria-label="Search jobs"><select id="min" aria-label="Minimum match"><option value="0">Any match</option><option value="40"${f.min==40?" selected":""}>40%+</option><option value="60"${f.min==60?" selected":""}>60%+</option><option value="80"${f.min==80?" selected":""}>80%+</option></select></div>
+  ${list.length?list.map(j=>`<div class="job"><div class="score" aria-label="${j.m} percent match">${j.m}</div><div><b>${esc(j.t)}</b> <span class="meta">${esc(j.c)}</span><div class="meta">${esc(j.loc)} · ${j.rem} · ${j.lvl} · from €${j.sal}/mo</div><div>${j.sk.map(k=>`<span class="tag">${esc(k)}</span>`).join("")}</div></div><div class="acts"><button class="btn" data-save="${j.id}">${S.saved.includes(j.id)?"Saved":"Save"}</button><button class="btn p" data-prep="${j.id}">Prepare application</button></div></div>`).join(""):`<div class="empty">No jobs match these filters. Lower the minimum match or clear the search.</div>`}</div>`;
+}
+function vTracker(){
+  const ids=Object.keys(S.apps);
+  return `<h1>Applications</h1><p class="sub">Status changes to “Submitted (confirmed)” only when you set it yourself after sending the application.</p><div class="panel scroll">${ids.length?ids.map(id=>{const j=JOBS.find(x=>x.id==id),a=S.apps[id];return `<div class="row"><div><b>${esc(j.t)}</b><div class="meta">${esc(j.c)}</div><input data-note="${id}" placeholder="Notes" value="${esc(a.note)}" style="width:100%;margin-top:6px" aria-label="Notes"></div><div><label>Status</label><select data-st="${id}">${STAT.map(s=>`<option${s===a.status?" selected":""}>${s}</option>`).join("")}</select></div><div><label>Follow-up</label><input type="date" data-fu="${id}" value="${a.follow}"></div></div>`}).join(""):`<div class="empty">Nothing tracked yet. Save a job or prepare an application from Matches.</div>`}</div>`;
+}
+function vAlerts(){
+  const a=S.alerts;
+  return `<h1>Job alerts</h1><p class="sub">Choose what to watch. Real monitoring needs the backend to poll authorised job sources.</p><div class="panel"><label>Job titles</label><input id="at" value="${esc(a.titles)}" style="width:100%"><label>Companies</label><input id="ac" value="${esc(a.companies)}" style="width:100%" placeholder="Optional"><label>Frequency</label><select id="af"><option value="daily"${a.freq=="daily"?" selected":""}>Daily</option><option value="weekly"${a.freq=="weekly"?" selected":""}>Weekly</option></select><p><label style="display:inline"><input type="checkbox" id="ao"${a.on?" checked":""}> Alerts on</label></p><button class="btn p" id="asv">Save alert settings</button></div>`;
+}
+function vProfile(){
+  const p=S.prefs;
+  return `<div class="prof"><div class="hero"><div><h1>Profile &amp; CV</h1><p class="sub">Your CV text stays in this browser. Skills are matched by keyword.</p></div><span class="pill">${S.cv?"CV saved":"No CV yet"}</span></div>
+  <div class="panel"><h2>Account</h2><button class="btn p" id="li">Sign in with LinkedIn</button><div class="note">LinkedIn sign-in uses official OAuth and requires a server. Applying on LinkedIn is a separate permission, so JobPilot guides you to submit yourself.</div></div>
+  <div class="panel"><h2>CV</h2><input type="file" id="file" accept=".txt,.md" aria-label="Upload CV"><label>Or paste CV text</label><textarea id="cv" placeholder="Paste skills, experience, education">${esc(S.cv)}</textarea><button class="btn p" id="cvs" style="margin-top:8px">Save CV</button></div>
+  <div class="panel"><h2>Preferences</h2><div class="grid2"><div><label>Location</label><input id="pl" value="${esc(p.loc)}" style="width:100%"></div><div><label>Min salary (€/month)</label><input id="ps" type="number" value="${p.minSal}" style="width:100%"></div><div><label>Work mode</label><select id="pr" style="width:100%">${["any","remote","hybrid","onsite"].map(x=>`<option${x==p.remote?" selected":""}>${x}</option>`).join("")}</select></div><div><label>Level</label><select id="pv" style="width:100%">${["any","junior","mid","senior"].map(x=>`<option${x==p.level?" selected":""}>${x}</option>`).join("")}</select></div></div><button class="btn p" id="ps2" style="margin-top:12px">Save preferences</button></div></div>`;
+}
+function bind(){
+  const g=s=>document.querySelector(s);
+  if(g("#q")){g("#q").oninput=e=>{f.q=e.target.value;const p=e.target.selectionStart;render();const q=g("#q");q.focus();q.setSelectionRange(p,p)};g("#min").onchange=e=>{f.min=+e.target.value;render()}}
+  document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{const id=+b.dataset.save;S.saved=S.saved.includes(id)?S.saved.filter(x=>x!==id):[...S.saved,id];if(S.saved.includes(id)&&!S.apps[id])setApp(id,{});save();render()});
+  document.querySelectorAll("[data-prep]").forEach(b=>b.onclick=()=>prep(+b.dataset.prep));
+  document.querySelectorAll("[data-st]").forEach(s=>s.onchange=()=>{setApp(s.dataset.st,{status:s.value});toast("Status updated");render()});
+  document.querySelectorAll("[data-fu]").forEach(s=>s.onchange=()=>{setApp(s.dataset.fu,{follow:s.value});toast("Follow-up saved")});
+  document.querySelectorAll("[data-note]").forEach(s=>s.onchange=()=>setApp(s.dataset.note,{note:s.value}));
+  if(g("#asv"))g("#asv").onclick=()=>{S.alerts={titles:g("#at").value,companies:g("#ac").value,freq:g("#af").value,on:g("#ao").checked};save();toast("Alert settings saved")};
+  if(g("#cvs"))g("#cvs").onclick=()=>{S.cv=g("#cv").value;save();toast("CV saved");};
+  if(g("#file"))g("#file").onchange=e=>{const r=new FileReader();r.onload=()=>{S.cv=String(r.result);save();toast("CV loaded");render()};if(e.target.files[0])r.readAsText(e.target.files[0])};
+  if(g("#ps2"))g("#ps2").onclick=()=>{S.prefs={loc:g("#pl").value,minSal:+g("#ps").value||0,remote:g("#pr").value,level:g("#pv").value};save();toast("Preferences saved")};
+  if(g("#li"))g("#li").onclick=()=>{const d=$("#dlg");d.innerHTML=`<h2>LinkedIn sign-in</h2><p>This button needs a backend to complete OAuth 2.0 / OpenID Connect: a LinkedIn developer app, a client ID and secret kept on the server, and a redirect URL. Only the profile and email scopes LinkedIn approves are requested, and no passwords are collected.</p><button class="btn" onclick="dlg.close()">Close</button>`;d.showModal()};
+}
+function prep(id){
+  const j=JOBS.find(x=>x.id===id),d=$("#dlg");
+  const mine=j.sk.filter(k=>S.cv.toLowerCase().includes(k)),miss=j.sk.filter(k=>!mine.includes(k));
+  const letter=`Dear hiring team at ${j.c},\n\nI am applying for the ${j.t} role. ${mine.length?`My experience with ${mine.join(", ")} matches the core of this position.`:"I would like to explain how my background fits this position."} ${j.d}\n\nI would welcome the chance to discuss how I can contribute.\n\nKind regards,`;
+  d.innerHTML=`<h2>${esc(j.t)} · ${esc(j.c)}</h2><p class="meta">Skills you cover: ${mine.map(esc).join(", ")||"none detected yet"}. Worth highlighting or learning: ${miss.map(esc).join(", ")||"nothing missing"}.</p><label>Draft cover letter (template)</label><textarea id="cl" style="min-height:190px">${esc(letter)}</textarea><div class="note">This is a template draft. AI-written letters need the backend and an AI provider API. Review and send the application yourself on the employer’s site.</div><div class="acts" style="justify-content:flex-start"><button class="btn" id="cp">Copy letter</button><button class="btn p" id="tr">Track as “Preparing”</button><button class="btn" onclick="dlg.close()">Close</button></div>`;
+  d.showModal();
+  $("#cp").onclick=()=>{try{navigator.clipboard.writeText($("#cl").value);toast("Copied")}catch(e){toast("Select the text and copy it")}};
+  $("#tr").onclick=()=>{setApp(id,{status:"Preparing"});d.close();toast("Added to Applications");render()};
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
+render();
+</script>
+<script src="/sync.js"></script>
+</body>
+</html>
